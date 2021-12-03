@@ -18,8 +18,8 @@ def tag_cleanup(html):
     return string
 
 def main():
-    #url = r'https://www.hltv.org/matches/2353153/nip-vs-vitality-iem-winter-2021'
-    url = r'https://www.hltv.org/matches/2353151/g2-vs-liquid-iem-winter-2021'
+    url = r'https://www.hltv.org/matches/2353153/nip-vs-vitality-iem-winter-2021'
+    #url = r'https://www.hltv.org/matches/2353151/g2-vs-liquid-iem-winter-2021'
         
     html = requests.get(url).content
     soup = BeautifulSoup(html, 'html.parser')
@@ -43,12 +43,28 @@ def main():
             for l in t.find_all('div', class_ = 'results-left'):
                 l_team = tag_cleanup(l.find('div', class_ = 'results-teamname'))
                 l_result = tag_cleanup(l.find('div', class_ = 'results-team-score'))
+                
+            for c in t.find_all('div', class_ = 'results-center'):
+                try:
+                    x = c.find_all('div', class_ = 'results-center-half-score')[0]
+                    ct_b = x.find_all('span', class_ = 'ct')
+                    t_b = x.find_all('span', class_ = 't')
+                    
+                    ct_l = tag_cleanup(ct_b[0])
+                    ct_r = tag_cleanup(ct_b[1])
+                    t_l = tag_cleanup(t_b[1])
+                    t_r = tag_cleanup(t_b[0])
+                except:
+                    pass
             
             for r in t.find_all('span', class_ = 'results-right'):
                 r_team = tag_cleanup(r.find('div', class_ = 'results-teamname'))
                 r_result = tag_cleanup(r.find('div', class_ = 'results-team-score'))
             
-        maps[map_name] = {l_team: l_result, r_team: r_result}
+        if l_result != '-':
+            maps[map_name] = {l_team: f'{l_result} — CT: {ct_l} T: {t_l}', r_team: f'{r_result} — CT: {ct_r} T: {t_r}'}
+        else:
+            maps[map_name] = {l_team: l_result, r_team: r_result}
         
     for i in match_info:
         print(i)
