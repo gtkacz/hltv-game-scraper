@@ -62,6 +62,45 @@ def main():
             maps[map_name] = {l_team: f'{l_result} — CT: {ct_l} T: {t_l}', r_team: f'{r_result} — CT: {ct_r} T: {t_r}'}
         else:
             maps[map_name] = {l_team: l_result, r_team: r_result}
+            
+    stats = {}
+    
+    for stats_table in soup.find_all('div', class_ = 'stats-content'):
+        teams = stats_table.find_all('table', class_ = ['table', 'totalstats'])
+        team_l = teams[0]
+        team_r = teams[3] #############configurar pra mapas
+        
+        names_l = team_l.find_all('td', class_ = 'players')
+        kd_l = team_l.find_all('td', class_ = 'kd')
+        plus_minus_l = team_l.find_all('td', class_ = 'plus-minus')
+        adr_l = team_l.find_all('td', class_ = 'adr')
+        kast_l = team_l.find_all('td', class_ = 'kast')
+        rating_l = team_l.find_all('td', class_ = 'rating')
+        
+        names_r = team_r.find_all('td', class_ = 'players')
+        print(tag_cleanup(team_r))
+        kd_r = team_r.find_all('td', class_ = 'kd')
+        plus_minus_r = team_r.find_all('td', class_ = 'plus-minus')
+        adr_r = team_r.find_all('td', class_ = 'adr')
+        kast_r = team_r.find_all('td', class_ = 'kast')
+        rating_r = team_r.find_all('td', class_ = 'rating')
+        
+        for i in range(1, 5):
+            stats[tag_cleanup(names_l[i]).split()[-1]] = {
+                'KD': tag_cleanup(kd_l[i]),
+                '+/-': tag_cleanup(plus_minus_l[i]),
+                'ADR': tag_cleanup(adr_l[i]),
+                'KAST': tag_cleanup(kast_l[i]),
+                'Rating': tag_cleanup(rating_l[i])
+                }
+
+            stats[tag_cleanup(names_r[i]).split()[-1]] = {
+                'K-D': tag_cleanup(kd_r[i]),
+                '+/-': tag_cleanup(plus_minus_r[i]),
+                'ADR': tag_cleanup(adr_r[i]),
+                'KAST': tag_cleanup(kast_r[i]),
+                'Rating': tag_cleanup(rating_r[i])
+                }
         
     print(repr(date), repr(event), '\n')
     
@@ -74,6 +113,10 @@ def main():
     print('\n')
         
     for x, y in maps.items():
+        print(x, y)
+    print('\n')
+        
+    for x, y in stats.items():
         print(x, y)
 
 
