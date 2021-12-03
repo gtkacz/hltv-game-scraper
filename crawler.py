@@ -2,13 +2,6 @@ import re, sys, time, requests
 from selenium.webdriver.remote.webdriver import WebDriver
 from tqdm import tqdm
 from bs4 import BeautifulSoup
-from pathlib import Path
-from selenium import webdriver
-from selenium.common.exceptions import WebDriverException, TimeoutException, NoSuchElementException
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.ui import WebDriverWait
 
 def tag_cleanup(html):
     html = str(html)
@@ -23,6 +16,10 @@ def main():
         
     html = requests.get(url).content
     soup = BeautifulSoup(html, 'html.parser')
+    
+    date_event_table = soup.find_all('div', class_ = 'timeAndEvent')[0]
+    date = tag_cleanup(date_event_table.find_all('div', class_ = 'date')[0])
+    event = tag_cleanup((date_event_table.find_all('div', class_ = 'event')[0]).find_all('a')[0])
     
     info_table = soup.find_all('div', class_ = ['padding', 'preformatted-text'])[0]
     match_info = tag_cleanup(info_table).split('\n')
@@ -66,6 +63,8 @@ def main():
         else:
             maps[map_name] = {l_team: l_result, r_team: r_result}
         
+    print(repr(date), repr(event), '\n')
+    
     for i in match_info:
         print(i)
     print('\n')
