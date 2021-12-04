@@ -11,7 +11,7 @@ def tag_cleanup(html):
     return string
 
 def main():
-    url = r'https://www.hltv.org/matches/2353153/nip-vs-vitality-iem-winter-2021'
+    url = r'https://www.hltv.org/matches/2353159/big-vs-godsent-iem-winter-2021'
     #url = r'https://www.hltv.org/matches/2353151/g2-vs-liquid-iem-winter-2021'
         
     html = requests.get(url).content
@@ -30,6 +30,9 @@ def main():
     for veto_table in soup.find_all('div', class_ = 'padding'):
         for veto in veto_table.find_all('div', class_ = ''):
             vetos.append(tag_cleanup(veto)[3:])
+    
+    team_l_name = vetos[1].split()[0]
+    team_r_name = vetos[0].split()[0]
     
     maps = {}
     maps_misc = []
@@ -65,9 +68,17 @@ def main():
         else:
             maps[map_name] = {l_team: l_result, r_team: r_result}
             
-    stats = {'All maps': None}
+    stats = {'All maps': {team_l_name: {}, team_r_name: {}}}
+    for i in maps_misc:
+        stats[i] = {team_l_name: {}, team_r_name: {}}
+    map_c = 0
     
     for stats_table in soup.find_all('div', class_ = 'stats-content'):
+        if map_c == 0:
+            map_name_current = 'All maps'
+        else:
+            map_name_current = maps_misc[map_c-1]
+        
         teams = stats_table.find_all('table', class_ = ['table', 'totalstats'])
         team_l = teams[0]
         team_r = teams[len(maps_misc) + 1]
@@ -86,58 +97,47 @@ def main():
         kast_r = team_r.find_all('td', class_ = 'kast')
         rating_r = team_r.find_all('td', class_ = 'rating')
         
-        team_l_name = None
-        team_r_name = None
-        
         for i in range(5):
-            tmp = {team_l_name: [], team_r_name: []}
-            
-            if i == 0:
-                team_l_name = tag_cleanup(names_l[i]).split()[-1]
-                team_r_name = tag_cleanup(names_r[i]).split()[-1]
-                continue
-            
-            tmp[team_l_name].append({
-                'Player': tag_cleanup(names_l[i]).split()[-1],
+            stats[map_name_current][team_l_name][tag_cleanup(names_l[i]).split()[-1]] = {
                 'KD': tag_cleanup(kd_l[i]),
                 '+/-': tag_cleanup(plus_minus_l[i]),
                 'ADR': tag_cleanup(adr_l[i]),
                 'KAST': tag_cleanup(kast_l[i]),
                 'Rating': tag_cleanup(rating_l[i])
-                })
+                }
 
-            tmp[team_r_name].append({
-                'Player': tag_cleanup(names_r[i]).split()[-1],
-                'KD': tag_cleanup(kd_r[i]),
-                '+/-': tag_cleanup(plus_minus_r[i]),
-                'ADR': tag_cleanup(adr_r[i]),
-                'KAST': tag_cleanup(kast_r[i]),
-                'Rating': tag_cleanup(rating_r[i])
-                })
+            # tmp[team_r_name].append({
+            #     'Player': tag_cleanup(names_r[i]).split()[-1],
+            #     'KD': tag_cleanup(kd_r[i]),
+            #     '+/-': tag_cleanup(plus_minus_r[i]),
+            #     'ADR': tag_cleanup(adr_r[i]),
+            #     'KAST': tag_cleanup(kast_r[i]),
+            #     'Rating': tag_cleanup(rating_r[i])
+            #     })
             
-            if not stats['All maps']:
-                stats['All maps'] = tmp
-            else:
-                pass
+            #cu.append(tmp)
+        map_c += 1
+        for x, y in stats.items():
+            print(x, y, '\n')
         
-    print(repr(date), repr(event), '\n')
+    # print(repr(date), repr(event), '\n')
     
-    for i in match_info:
-        print(i)
-    print('\n')
+    # for i in match_info:
+    #     print(i)
+    # print('\n')
     
-    for i in vetos:
-        print(i)
-    print('\n')
+    # for i in vetos:
+    #     print(i)
+    # print('\n')
         
-    for x, y in maps.items():
-        print(x, y)
-    print('\n')
+    # for x, y in maps.items():
+    #     print(x, y)
+    # print('\n')
         
-    for m, t in stats.items():
-        print(m)
-        for n, s in t.items():
-            print(n, s)
+    # for m, t in stats.items():
+    #     print(m)
+    #     for n, s in t.items():
+    #         print(n, s)
 
 
 if __name__ == '__main__':
