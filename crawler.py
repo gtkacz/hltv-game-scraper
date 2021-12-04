@@ -32,6 +32,7 @@ def main():
             vetos.append(tag_cleanup(veto)[3:])
     
     maps = {}
+    maps_misc = []
     
     for map_table in soup.find_all('div', class_ = 'mapholder'):
         map_name = tag_cleanup(map_table.find('div', class_ = 'mapname'))
@@ -60,15 +61,16 @@ def main():
             
         if l_result != '-':
             maps[map_name] = {l_team: f'{l_result} — CT: {ct_l} T: {t_l}', r_team: f'{r_result} — CT: {ct_r} T: {t_r}'}
+            maps_misc.append(map_name)
         else:
             maps[map_name] = {l_team: l_result, r_team: r_result}
             
-    stats = {}
+    stats = {'All maps': None}
     
     for stats_table in soup.find_all('div', class_ = 'stats-content'):
         teams = stats_table.find_all('table', class_ = ['table', 'totalstats'])
         team_l = teams[0]
-        team_r = teams[3] #############configurar pra mapas
+        team_r = teams[len(maps_misc) + 1]
         
         names_l = team_l.find_all('td', class_ = 'players')
         kd_l = team_l.find_all('td', class_ = 'kd')
@@ -78,29 +80,45 @@ def main():
         rating_l = team_l.find_all('td', class_ = 'rating')
         
         names_r = team_r.find_all('td', class_ = 'players')
-        print(tag_cleanup(team_r))
         kd_r = team_r.find_all('td', class_ = 'kd')
         plus_minus_r = team_r.find_all('td', class_ = 'plus-minus')
         adr_r = team_r.find_all('td', class_ = 'adr')
         kast_r = team_r.find_all('td', class_ = 'kast')
         rating_r = team_r.find_all('td', class_ = 'rating')
         
-        for i in range(1, 5):
-            stats[tag_cleanup(names_l[i]).split()[-1]] = {
+        team_l_name = None
+        team_r_name = None
+        
+        for i in range(5):
+            tmp = {team_l_name: [], team_r_name: []}
+            
+            if i == 0:
+                team_l_name = tag_cleanup(names_l[i]).split()[-1]
+                team_r_name = tag_cleanup(names_r[i]).split()[-1]
+                continue
+            
+            tmp[team_l_name].append({
+                'Player': tag_cleanup(names_l[i]).split()[-1],
                 'KD': tag_cleanup(kd_l[i]),
                 '+/-': tag_cleanup(plus_minus_l[i]),
                 'ADR': tag_cleanup(adr_l[i]),
                 'KAST': tag_cleanup(kast_l[i]),
                 'Rating': tag_cleanup(rating_l[i])
-                }
+                })
 
-            stats[tag_cleanup(names_r[i]).split()[-1]] = {
-                'K-D': tag_cleanup(kd_r[i]),
+            tmp[team_r_name].append({
+                'Player': tag_cleanup(names_r[i]).split()[-1],
+                'KD': tag_cleanup(kd_r[i]),
                 '+/-': tag_cleanup(plus_minus_r[i]),
                 'ADR': tag_cleanup(adr_r[i]),
                 'KAST': tag_cleanup(kast_r[i]),
                 'Rating': tag_cleanup(rating_r[i])
-                }
+                })
+            
+            if not stats['All maps']:
+                stats['All maps'] = tmp
+            else:
+                pass
         
     print(repr(date), repr(event), '\n')
     
@@ -116,8 +134,10 @@ def main():
         print(x, y)
     print('\n')
         
-    for x, y in stats.items():
-        print(x, y)
+    for m, t in stats.items():
+        print(m)
+        for n, s in t.items():
+            print(n, s)
 
 
 if __name__ == '__main__':
