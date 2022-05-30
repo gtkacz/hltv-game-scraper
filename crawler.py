@@ -12,7 +12,6 @@ def tag_cleanup(html):
 
 def main():
     url = r'https://www.hltv.org/matches/2353159/big-vs-godsent-iem-winter-2021'
-    #url = r'https://www.hltv.org/matches/2353151/g2-vs-liquid-iem-winter-2021'
         
     html = requests.get(url).content
     soup = BeautifulSoup(html, 'html.parser')
@@ -97,7 +96,7 @@ def main():
         kast_r = team_r.find_all('td', class_ = 'kast')
         rating_r = team_r.find_all('td', class_ = 'rating')
         
-        for i in range(5):
+        for i in range(1, 6):
             stats[map_name_current][team_l_name][tag_cleanup(names_l[i]).split()[-1]] = {
                 'KD': tag_cleanup(kd_l[i]),
                 '+/-': tag_cleanup(plus_minus_l[i]),
@@ -106,38 +105,38 @@ def main():
                 'Rating': tag_cleanup(rating_l[i])
                 }
 
-            # tmp[team_r_name].append({
-            #     'Player': tag_cleanup(names_r[i]).split()[-1],
-            #     'KD': tag_cleanup(kd_r[i]),
-            #     '+/-': tag_cleanup(plus_minus_r[i]),
-            #     'ADR': tag_cleanup(adr_r[i]),
-            #     'KAST': tag_cleanup(kast_r[i]),
-            #     'Rating': tag_cleanup(rating_r[i])
-            #     })
-            
-            #cu.append(tmp)
+            stats[map_name_current][team_r_name][tag_cleanup(names_r[i]).split()[-1]] = {
+                'KD': tag_cleanup(kd_r[i]),
+                '+/-': tag_cleanup(plus_minus_r[i]),
+                'ADR': tag_cleanup(adr_r[i]),
+                'KAST': tag_cleanup(kast_r[i]),
+                'Rating': tag_cleanup(rating_r[i])
+                }
         map_c += 1
-        for x, y in stats.items():
-            print(x, y, '\n')
+        # for x, y in stats.items():
+        #     print(x, y, '\n')
         
-    # print(repr(date), repr(event), '\n')
+    print(repr(date), repr(event), '\n')
     
-    # for i in match_info:
-    #     print(i)
-    # print('\n')
+    for i in match_info:
+        print(i)
+    print('\n')
     
-    # for i in vetos:
-    #     print(i)
-    # print('\n')
+    for i in vetos:
+        print(i)
+    print('\n')
         
-    # for x, y in maps.items():
-    #     print(x, y)
-    # print('\n')
+    for x, y in maps.items():
+        print(x, y)
+    print('\n')
         
-    # for m, t in stats.items():
-    #     print(m)
-    #     for n, s in t.items():
-    #         print(n, s)
+    for m, t in stats.items():
+        print(m)
+        for n, s in t.items():
+            # print(n)
+            for s1, s2 in s.items():
+                print(s1, s2)
+            print('\n')
 
 
 if __name__ == '__main__':
